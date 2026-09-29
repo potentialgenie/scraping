@@ -19,7 +19,8 @@ cp .env.example .env
 python -m slack_email_scraper ui
 ```
 
-Open **http://127.0.0.1:8765** in your Google Chrome → Connect → Save session → Scrape directory.
+Open **http://127.0.0.1:8765** in your Google Chrome → capture session (extension or
+manual) → **Open** workspace if needed → **Scrape**.
 
 Results: **`output/`** as a spreadsheet CSV (`directory_<workspace>_<time>.csv`)
 with columns **Name**, **Display Name**, **Title**, **Phone**, **Local Time**,

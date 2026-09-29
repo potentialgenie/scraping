@@ -20,93 +20,102 @@ _PAGE = """
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <title>Slack Email Scraper</title>
+  <title>Slack Directory Scraper</title>
   <style>
     :root {
       --bg: #0f1419; --panel: #1a2332; --text: #e7ecf3; --muted: #8b9bb4;
-      --accent: #3d8bfd; --ok: #3dd68c; --warn: #f0b429; --danger: #f07178; --line: #2a3648;
+      --accent: #3d8bfd; --ok: #3dd68c; --warn: #f0b429; --danger: #f07178;
+      --line: #2a3648;
     }
     * { box-sizing: border-box; }
     body {
-      margin: 0; font-family: "Segoe UI", system-ui, sans-serif;
-      background: radial-gradient(1200px 600px at 10% -10%, #1c2b44, var(--bg));
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: radial-gradient(1100px 520px at 8% -12%, #1c2b44, var(--bg));
       color: var(--text); min-height: 100vh;
     }
-    main { max-width: 980px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
-    h1 { font-size: 1.6rem; margin: 0 0 0.35rem; }
-    .sub { color: var(--muted); margin-bottom: 1.25rem; line-height: 1.5; }
-    .status, .help, .flash {
-      background: var(--panel); border: 1px solid var(--line);
-      border-radius: 10px; padding: 0.85rem 1rem; margin-bottom: 1rem;
+    main { max-width: 920px; margin: 0 auto; padding: 1.75rem 1.1rem 3rem; }
+    header { margin-bottom: 1rem; }
+    h1 { font-size: 1.45rem; margin: 0 0 0.25rem; font-weight: 650; }
+    .sub { color: var(--muted); margin: 0; font-size: 0.92rem; line-height: 1.45; }
+    .bar {
+      display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;
+      justify-content: space-between; margin: 1rem 0 0.85rem;
     }
-    .status { color: var(--muted); white-space: pre-wrap; }
-    .status strong, .help strong { color: var(--text); }
-    .help { color: var(--muted); font-size: 0.92rem; line-height: 1.45; }
-    .help ol { margin: 0.4rem 0 0 1.2rem; padding: 0; }
-    .flash { border-left: 3px solid var(--accent); }
+    .status {
+      flex: 1; min-width: 220px;
+      background: var(--panel); border: 1px solid var(--line);
+      border-radius: 10px; padding: 0.7rem 0.9rem;
+      color: var(--muted); white-space: pre-wrap; font-size: 0.9rem;
+    }
+    .status strong { color: var(--text); }
+    .flash {
+      background: var(--panel); border: 1px solid var(--line);
+      border-left: 3px solid var(--accent); border-radius: 10px;
+      padding: 0.7rem 0.9rem; margin-bottom: 0.75rem; font-size: 0.9rem;
+    }
     .flash.err { border-left-color: var(--danger); }
     .flash.ok { border-left-color: var(--ok); }
+    .toolbar {
+      display: flex; gap: 0.55rem; flex-wrap: wrap; align-items: center;
+      margin-bottom: 0.65rem;
+    }
+    .toolbar input[type=search] {
+      flex: 1; min-width: 180px; padding: 0.5rem 0.7rem; border-radius: 8px;
+      border: 1px solid var(--line); background: #0d1218; color: var(--text);
+    }
+    .meta { color: var(--muted); font-size: 0.82rem; }
     table {
       width: 100%; border-collapse: collapse; background: var(--panel);
       border-radius: 12px; overflow: hidden; border: 1px solid var(--line);
     }
-    th, td { text-align: left; padding: 0.75rem 0.9rem; border-bottom: 1px solid var(--line); }
-    th { color: var(--muted); font-size: 0.85rem; }
+    th, td { text-align: left; padding: 0.65rem 0.85rem; border-bottom: 1px solid var(--line); }
+    th { color: var(--muted); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.02em; }
     tr:last-child td { border-bottom: none; }
+    tr.hidden { display: none; }
     .badge {
-      display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px;
-      font-size: 0.75rem; font-weight: 600;
+      display: inline-block; padding: 0.12rem 0.45rem; border-radius: 999px;
+      font-size: 0.72rem; font-weight: 650;
     }
     .badge.yes { background: rgba(61,214,140,0.15); color: var(--ok); }
     .badge.no { background: rgba(240,180,41,0.12); color: var(--warn); }
-    .actions { display: flex; gap: 0.45rem; flex-wrap: wrap; }
-    button {
-      appearance: none; border: 0; border-radius: 8px; padding: 0.45rem 0.8rem;
-      font-weight: 600; cursor: pointer; font-size: 0.9rem;
+    .actions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    button, .btn {
+      appearance: none; border: 0; border-radius: 8px; padding: 0.42rem 0.75rem;
+      font-weight: 650; cursor: pointer; font-size: 0.86rem; text-decoration: none;
+      display: inline-block;
     }
-    .btn-connect { background: var(--accent); color: #fff; }
-    .btn-save { background: #7c6af0; color: #fff; }
+    .btn-open { background: var(--accent); color: #fff; }
     .btn-scrape { background: var(--ok); color: #062816; }
-    button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-save { background: #7c6af0; color: #fff; }
+    button:disabled, .btn:disabled { opacity: 0.45; cursor: not-allowed; }
     code { color: #9ec1ff; }
-    details { margin-top: 1rem; }
-    details > summary { cursor: pointer; color: var(--accent); font-weight: 600; }
-    .save-box {
-      margin-top: 0.75rem; background: #121820; border: 1px solid var(--line);
-      border-radius: 10px; padding: 1rem;
+    details.manual {
+      margin-top: 1rem; background: var(--panel); border: 1px solid var(--line);
+      border-radius: 10px; padding: 0.65rem 0.9rem;
     }
-    label { display: block; font-size: 0.85rem; color: var(--muted); margin: 0.55rem 0 0.25rem; }
-    input[type=text] {
-      width: 100%; padding: 0.55rem 0.65rem; border-radius: 8px;
+    details.manual > summary {
+      cursor: pointer; color: var(--muted); font-weight: 600; font-size: 0.9rem;
+    }
+    .manual-body { margin-top: 0.75rem; color: var(--muted); font-size: 0.88rem; line-height: 1.45; }
+    .manual-body p { margin: 0 0 0.65rem; }
+    label { display: block; font-size: 0.8rem; color: var(--muted); margin: 0.45rem 0 0.2rem; }
+    select, .manual-body input[type=text] {
+      width: 100%; padding: 0.5rem 0.65rem; border-radius: 8px;
       border: 1px solid var(--line); background: #0d1218; color: var(--text);
     }
+    .manual-actions { margin-top: 0.75rem; }
   </style>
 </head>
 <body>
 <main>
-  <h1>Slack Email Scraper</h1>
-  <p class="sub">
-    Scrapes emails from <strong>Directories → People → profile Contact information</strong>
-    (not from channel messages). Open this UI in your Google Chrome.
-  </p>
-
-  <div class="help">
-    <strong>How to use</strong>
-    <ol>
-      <li>Open <code>http://127.0.0.1:8765</code> in the Chrome where Gmail is signed in.</li>
-      <li><strong>Connect</strong> → Slack opens in a new tab → sign in with Google.</li>
-      <li>Confirm you can see emails under Directories → People → profile.</li>
-      <li><strong>Save session</strong> (paste cookie <code>d</code> + <code>xoxc</code> token).</li>
-      <li><strong>Scrape</strong> → reads all member profile emails for that workspace.</li>
-    </ol>
-    Results go to <code>{{ output_dir }}</code> and grow in <strong>realtime</strong>
-    (one row per email as soon as it is found). For ~3800 members expect several minutes.
-  </div>
-
-  <div class="status">
-    <strong>Status:</strong> {{ status_message }}
-    {% if busy %}<br/><em>Busy: {{ busy }}</em>{% endif %}
-  </div>
+  <header>
+    <h1>Slack Directory Scraper</h1>
+    <p class="sub">
+      Scrapes Name, Display Name, Title, Phone, Local Time, Email from
+      Directories → People. Results → <code>{{ output_dir }}</code>
+    </p>
+  </header>
 
   {% with messages = get_flashed_messages(with_categories=true) %}
     {% for category, message in messages %}
@@ -114,34 +123,45 @@ _PAGE = """
     {% endfor %}
   {% endwith %}
 
+  <div class="bar">
+    <div class="status" id="status">
+      <strong>Status:</strong> {{ status_message }}{% if busy %}
+      <br/><em>Busy: {{ busy }}</em>{% endif %}
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input type="search" id="filter" placeholder="Filter workspaces…" autocomplete="off"/>
+    <span class="meta" id="counts">{{ signed_count }}/{{ rows|length }} signed in</span>
+  </div>
+
   <table>
     <thead>
       <tr>
-        <th>#</th><th>Workspace</th><th>Signed in</th><th>Actions</th>
+        <th style="width:3rem">#</th>
+        <th>Workspace</th>
+        <th style="width:6rem">Session</th>
+        <th style="width:12rem">Actions</th>
       </tr>
     </thead>
-    <tbody>
+    <tbody id="ws-table">
       {% for row in rows %}
-      <tr>
+      <tr data-name="{{ row.name }}">
         <td>{{ loop.index }}</td>
         <td><code>{{ row.name }}</code></td>
         <td>
-          {% if row.signed_in %}<span class="badge yes">yes</span>
-          {% else %}<span class="badge no">no</span>{% endif %}
+          {% if row.signed_in %}<span class="badge yes">ready</span>
+          {% else %}<span class="badge no">needed</span>{% endif %}
         </td>
         <td>
           <div class="actions">
-            <button class="btn-connect" type="button"
-              onclick="window.open('https://{{ row.name }}.slack.com', '_blank', 'noopener');">
-              Connect
-            </button>
-            <button class="btn-save" type="button"
-              onclick="document.getElementById('save-{{ row.name }}').open = true; document.getElementById('ws-{{ row.name }}').scrollIntoView();">
-              Save session
+            <button class="btn-open" type="button"
+              onclick="window.open('https://{{ row.name }}.slack.com','_blank','noopener')">
+              Open
             </button>
             <form method="post" action="{{ url_for('scrape', workspace=row.name) }}" style="display:inline">
               <button class="btn-scrape" type="submit"
-                {% if busy or not row.signed_in %}disabled{% endif %}>Scrape directory</button>
+                {% if busy or not row.signed_in %}disabled{% endif %}>Scrape</button>
             </form>
           </div>
         </td>
@@ -150,52 +170,47 @@ _PAGE = """
     </tbody>
   </table>
 
-  <details id="howto-save" open>
-    <summary>How to Save session</summary>
-    <div class="help" style="margin-top:0.75rem;border:0;padding:0;background:transparent">
-      Each workspace has its own token. Open the Slack tab for
-      <strong>that</strong> workspace, then:
-      <ol>
-        <li>Press <code>F12</code> → <strong>Application</strong> → Cookies → copy cookie <code>d</code>.</li>
-        <li><strong>Console</strong> → paste this (replace the workspace name) and copy the result:
-          <pre style="white-space:pre-wrap;color:#9ec1ff;background:#121820;padding:0.6rem;border-radius:8px">(() => {
-  const want = 'hm-developers';               // &lt;-- workspace you are saving
-  const cfg = JSON.parse(localStorage.localConfig_v2 || '{}');
-  const t = Object.values(cfg.teams || {}).find(
-    x =&gt; x &amp;&amp; x.token &amp;&amp; (
-      (x.domain || '').toLowerCase() === want ||
-      (x.url || '').toLowerCase().includes(want + '.slack.com')
-    )
-  );
-  return t ? t.token : 'NO_TOKEN_FOR_' + want;
-})()</pre>
-        </li>
-        <li>Paste both into the form below → Save. The token is verified against
-          the workspace, so a wrong-workspace token is rejected.</li>
-      </ol>
+  <details class="manual">
+    <summary>Session help &amp; manual paste (optional)</summary>
+    <div class="manual-body">
+      <p>
+        Prefer the Chrome extension in <code>extension/</code>: open a signed-in Slack tab,
+        click <strong>Capture &amp; save all workspaces</strong>, then reload this page.
+        Open a workspace with <strong>Open</strong> if you still need to sign in.
+      </p>
+      <form method="post" action="{{ url_for('save_manual') }}">
+        <label>Workspace</label>
+        <select name="workspace" required>
+          {% for row in rows %}
+          <option value="{{ row.name }}">{{ row.name }}</option>
+          {% endfor %}
+        </select>
+        <label>Cookie <code>d</code></label>
+        <input type="text" name="cookie_d" placeholder="paste d cookie" required/>
+        <label>Token <code>xoxc-…</code> (must match the workspace above)</label>
+        <input type="text" name="token" placeholder="xoxc-..." required/>
+        <div class="manual-actions">
+          <button class="btn-save" type="submit" {% if busy %}disabled{% endif %}>Save session</button>
+        </div>
+      </form>
     </div>
   </details>
-
-  {% for row in rows %}
-  <details class="save-box" id="save-{{ row.name }}">
-    <summary id="ws-{{ row.name }}">Save session — <code>{{ row.name }}</code></summary>
-    <form method="post" action="{{ url_for('save_manual') }}">
-      <input type="hidden" name="workspace" value="{{ row.name }}"/>
-      <label>Cookie <code>d</code></label>
-      <input type="text" name="cookie_d" placeholder="paste d cookie value" required/>
-      <label>Token <code>xoxc-…</code></label>
-      <input type="text" name="token" placeholder="xoxc-..." required/>
-      <div style="margin-top:0.75rem">
-        <button class="btn-save" type="submit" {% if busy %}disabled{% endif %}>Save {{ row.name }}</button>
-      </div>
-    </form>
-  </details>
-  {% endfor %}
 </main>
 <script>
-  {% if busy %}
-  setTimeout(function(){ location.reload(); }, 5000);
-  {% endif %}
+  (function () {
+    var input = document.getElementById("filter");
+    var rows = document.querySelectorAll("#ws-table tr");
+    input.addEventListener("input", function () {
+      var q = (input.value || "").toLowerCase().trim();
+      rows.forEach(function (tr) {
+        var name = tr.getAttribute("data-name") || "";
+        tr.classList.toggle("hidden", q && name.indexOf(q) === -1);
+      });
+    });
+    {% if busy %}
+    setTimeout(function () { location.reload(); }, 4000);
+    {% endif %}
+  })();
 </script>
 </body>
 </html>
@@ -233,9 +248,11 @@ def create_app(
 
     @app.get("/")
     def index():
+        rows = _rows()
         return render_template_string(
             _PAGE,
-            rows=_rows(),
+            rows=rows,
+            signed_count=sum(1 for r in rows if r["signed_in"]),
             status_message=_status["message"],
             busy=_status["busy"],
             output_dir=str(settings.output_dir),
@@ -243,7 +260,6 @@ def create_app(
 
     @app.after_request
     def _cors(resp):
-        # Allow the companion Chrome extension to POST captured sessions.
         resp.headers["Access-Control-Allow-Origin"] = "*"
         resp.headers["Access-Control-Allow-Headers"] = "Content-Type"
         resp.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
@@ -306,8 +322,7 @@ def create_app(
         if actual and actual != workspace:
             flash(
                 f"That token belongs to '{actual}', not '{workspace}'. "
-                f"Open the {workspace} Slack tab and copy the token from there "
-                "(each workspace has its own token).",
+                f"Open the {workspace} Slack tab and copy the token from there.",
                 "err",
             )
             return redirect(url_for("index"))
@@ -322,7 +337,7 @@ def create_app(
             return redirect(url_for("index"))
         with _lock:
             _status["message"] = f"Saved verified session for {workspace}."
-        flash(f"Saved session for {workspace} (team {info['team_id']}).", "ok")
+        flash(f"Saved session for {workspace}.", "ok")
         return redirect(url_for("index"))
 
     @app.post("/scrape/<workspace>")
@@ -334,7 +349,7 @@ def create_app(
 
         current = SessionStore.load(store.path)
         if not current.has_workspace(ws.name):
-            flash(f"Save session for {ws.name} first.", "err")
+            flash(f"Save a session for {ws.name} first (extension or manual paste).", "err")
             return redirect(url_for("index"))
 
         with _lock:
@@ -342,10 +357,7 @@ def create_app(
                 flash(f"Busy with: {_status['busy']}", "err")
                 return redirect(url_for("index"))
             _status["busy"] = f"scrape {ws.name}"
-            _status["message"] = (
-                f"Scraping directory emails for {ws.name}… "
-                "(People profiles — may take several minutes for large workspaces)"
-            )
+            _status["message"] = f"Scraping {ws.name}…"
 
         def job() -> None:
             live: LiveExporter | None = None
@@ -357,17 +369,15 @@ def create_app(
                     assert live is not None
                     if live.append(hit):
                         with _lock:
-                            recent = [h.email for h in live.hits[-8:]]
+                            recent = [h.email for h in live.hits[-6:]]
                             _status["message"] = (
-                                f"Scraping {ws.name}… {len(live.hits)} email(s) so far "
-                                f"→ {paths['csv'].name}\nlatest: "
+                                f"Scraping {ws.name}… {len(live.hits)} so far "
+                                f"→ {paths['csv'].name}\n"
                                 + " · ".join(reversed(recent))
                             )
 
                 with _lock:
-                    _status["message"] = (
-                        f"Scraping {ws.name}… live file: {paths['csv']}"
-                    )
+                    _status["message"] = f"Scraping {ws.name}… → {paths['csv'].name}"
 
                 scraper = HttpSlackScraper(ws.name, SessionStore.load(store.path))
                 all_hits = scraper.scrape_directory(on_hit=on_hit)
@@ -377,8 +387,8 @@ def create_app(
                 unique = unique_emails(all_hits)
                 with _lock:
                     _status["message"] = (
-                        f"Done {ws.name}: {len(all_hits)} profile email(s), "
-                        f"{len(unique)} unique. Saved under {settings.output_dir}: {files}"
+                        f"Done {ws.name}: {len(all_hits)} contacts "
+                        f"({len(unique)} unique). {files}"
                     )
             except Exception as exc:
                 with _lock:
@@ -393,11 +403,7 @@ def create_app(
                     _status["busy"] = ""
 
         threading.Thread(target=job, daemon=True).start()
-        flash(
-            f"Directory scrape started for {ws.name}. "
-            "Emails are appended to output/ in realtime — open the CSV while it runs.",
-            "ok",
-        )
+        flash(f"Scrape started for {ws.name}. Watching {settings.output_dir}/", "ok")
         return redirect(url_for("index"))
 
     return app
@@ -418,7 +424,10 @@ def run_ui(
     print()
     print("UI server starting.")
     print(f"  Open in YOUR Google Chrome: {ui_url}")
-    print("  Scrape = Directories → People profile emails")
-    print(f"  Results → {Settings.from_env(env_file, require_channels=False, targets_file=targets_file).output_dir}/")
+    print("  Scrape = Directories → People profiles")
+    print(
+        f"  Results → "
+        f"{Settings.from_env(env_file, require_channels=False, targets_file=targets_file).output_dir}/"
+    )
     print()
     app.run(host=host, port=port, debug=False, use_reloader=False)
