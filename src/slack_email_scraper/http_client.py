@@ -56,7 +56,7 @@ class HttpSlackScraper:
         if not store.cookie_d or not token:
             raise RuntimeError(
                 f"No saved session for '{self.workspace}'. "
-                "Connect + Save session in the UI first."
+                "Use the Chrome extension on a Slack tab, then reload the UI."
             )
         self._token = token
         self._team_id = store.team_id(self.workspace)
@@ -106,8 +106,8 @@ class HttpSlackScraper:
 
     def _hint(self, method: str, error: str) -> str:
         hints = {
-            "invalid_auth": "Session expired. Save session again from the UI.",
-            "token_revoked": "Session revoked. Save session again from the UI.",
+            "invalid_auth": "Session expired. Capture again with the Chrome extension.",
+            "token_revoked": "Session revoked. Capture again with the Chrome extension.",
             "ratelimited": "Rate limited. Wait and retry.",
             "missing_scope": (
                 "This session cannot read member emails. "
@@ -127,8 +127,8 @@ class HttpSlackScraper:
         if actual and actual != self.workspace:
             raise SessionWorkspaceMismatch(
                 f"The saved token for '{self.workspace}' actually belongs to "
-                f"'{actual}'. In Slack, switch to the {self.workspace} workspace, "
-                "then copy the token from THAT tab and Save session again."
+                f"'{actual}'. Open the {self.workspace} Slack tab and capture "
+                "again with the Chrome extension."
             )
         team_id = str(auth.get("team_id") or "")
         if team_id and team_id != (self._team_id or ""):
@@ -256,8 +256,8 @@ class HttpSlackScraper:
                         f"'{self.workspace}' does not expose member emails to your "
                         f"account through Slack's API (checked {scanned} profiles). "
                         "Open Directories → People → a profile in Slack: if you can "
-                        "see an Email Address there, re-copy the token from that "
-                        "workspace tab and Save session again."
+                        "see an Email Address there, capture the session again with "
+                        "the Chrome extension from that workspace tab."
                     )
 
             cursor = (resp.get("response_metadata") or {}).get("next_cursor") or None

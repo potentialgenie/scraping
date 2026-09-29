@@ -19,19 +19,22 @@ cp .env.example .env
 python -m slack_email_scraper ui
 ```
 
-Open **http://127.0.0.1:8765** in your Google Chrome → capture session (extension or
-manual) → **Open** workspace if needed → **Scrape**.
+1. Open **http://127.0.0.1:8765** in your Google Chrome.
+2. Capture sessions with the Chrome extension (below).
+3. In the UI: **Open** a workspace if needed → **Scrape**.
 
 Results: **`output/`** as a spreadsheet CSV (`directory_<workspace>_<time>.csv`)
 with columns **Name**, **Display Name**, **Title**, **Phone**, **Local Time**,
-**Email**, **Workspace** — one row appended per person as
-they are scraped. A matching `.json` snapshot is updated live. Each row is also
-printed to the terminal and shown in the UI status.
+**Email**, **Workspace** — one row appended per person as they are scraped.
+A matching `.json` snapshot is updated live. Each row is also printed to the
+terminal and shown in the UI status.
 
-## Saving sessions (two ways)
+For large workspaces (~thousands of members), expect several minutes.
 
-**Automatic (one click) — Chrome extension.** Slack's `d` cookie is HttpOnly, so a
-console snippet or bookmarklet cannot read it; a small extension can. Load it once:
+## Capture sessions (Chrome extension)
+
+Slack's `d` cookie is HttpOnly, so a console snippet cannot read it. Load the
+extension once:
 
 1. `chrome://extensions` → enable **Developer mode** → **Load unpacked** → pick the
    `extension/` folder in this repo.
@@ -40,18 +43,8 @@ console snippet or bookmarklet cannot read it; a small extension can. Load it on
    workspaces**. It grabs the `d` cookie and every workspace's `xoxc` token and
    saves them (verified against Slack). Reload the UI and Scrape.
 
-**Manual.** Use the "How to Save session" panel in the UI to paste the `d` cookie
-and the workspace's token by hand.
-
-For large workspaces (~thousands of members), expect several minutes.
-
-## Per-workspace tokens
-
-Every Slack workspace has its **own** `xoxc-` token. Copy the token from the tab
-of the workspace you are saving — the console snippet in the UI filters by
-workspace name, and the save step verifies the token with `auth.test` and
-rejects a token that belongs to a different workspace. The `d` cookie is shared
-across all workspaces.
+Every Slack workspace has its own `xoxc-` token; the extension saves each under
+the correct workspace. The `d` cookie is shared across all workspaces.
 
 ## When a workspace returns no emails
 

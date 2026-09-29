@@ -87,24 +87,8 @@ _PAGE = """
     }
     .btn-open { background: var(--accent); color: #fff; }
     .btn-scrape { background: var(--ok); color: #062816; }
-    .btn-save { background: #7c6af0; color: #fff; }
     button:disabled, .btn:disabled { opacity: 0.45; cursor: not-allowed; }
     code { color: #9ec1ff; }
-    details.manual {
-      margin-top: 1rem; background: var(--panel); border: 1px solid var(--line);
-      border-radius: 10px; padding: 0.65rem 0.9rem;
-    }
-    details.manual > summary {
-      cursor: pointer; color: var(--muted); font-weight: 600; font-size: 0.9rem;
-    }
-    .manual-body { margin-top: 0.75rem; color: var(--muted); font-size: 0.88rem; line-height: 1.45; }
-    .manual-body p { margin: 0 0 0.65rem; }
-    label { display: block; font-size: 0.8rem; color: var(--muted); margin: 0.45rem 0 0.2rem; }
-    select, .manual-body input[type=text] {
-      width: 100%; padding: 0.5rem 0.65rem; border-radius: 8px;
-      border: 1px solid var(--line); background: #0d1218; color: var(--text);
-    }
-    .manual-actions { margin-top: 0.75rem; }
   </style>
 </head>
 <body>
@@ -113,7 +97,8 @@ _PAGE = """
     <h1>Slack Directory Scraper</h1>
     <p class="sub">
       Scrapes Name, Display Name, Title, Phone, Local Time, Email from
-      Directories → People. Results → <code>{{ output_dir }}</code>
+      Directories → People. Capture sessions with the Chrome extension, then scrape.
+      Results → <code>{{ output_dir }}</code>
     </p>
   </header>
 
@@ -169,32 +154,6 @@ _PAGE = """
       {% endfor %}
     </tbody>
   </table>
-
-  <details class="manual">
-    <summary>Session help &amp; manual paste (optional)</summary>
-    <div class="manual-body">
-      <p>
-        Prefer the Chrome extension in <code>extension/</code>: open a signed-in Slack tab,
-        click <strong>Capture &amp; save all workspaces</strong>, then reload this page.
-        Open a workspace with <strong>Open</strong> if you still need to sign in.
-      </p>
-      <form method="post" action="{{ url_for('save_manual') }}">
-        <label>Workspace</label>
-        <select name="workspace" required>
-          {% for row in rows %}
-          <option value="{{ row.name }}">{{ row.name }}</option>
-          {% endfor %}
-        </select>
-        <label>Cookie <code>d</code></label>
-        <input type="text" name="cookie_d" placeholder="paste d cookie" required/>
-        <label>Token <code>xoxc-…</code> (must match the workspace above)</label>
-        <input type="text" name="token" placeholder="xoxc-..." required/>
-        <div class="manual-actions">
-          <button class="btn-save" type="submit" {% if busy %}disabled{% endif %}>Save session</button>
-        </div>
-      </form>
-    </div>
-  </details>
 </main>
 <script>
   (function () {
@@ -298,48 +257,6 @@ def create_app(
             _status["message"] = f"Auto-saved session for {workspace}."
         return {"ok": True, "workspace": workspace, "team_id": info["team_id"]}
 
-    @app.post("/save-manual")
-    def save_manual():
-        workspace = (request.form.get("workspace") or "").strip().lower()
-        cookie_d = (request.form.get("cookie_d") or "").strip()
-        token = (request.form.get("token") or "").strip()
-        if not _find_workspace(workspace):
-            flash(f"Unknown workspace: {workspace}", "err")
-            return redirect(url_for("index"))
-        if not cookie_d or cookie_d.startswith("paste"):
-            flash("Paste the real Slack cookie named d.", "err")
-            return redirect(url_for("index"))
-        if not token.startswith("xoxc-"):
-            flash("Token must start with xoxc-", "err")
-            return redirect(url_for("index"))
-        try:
-            info = verify_credentials(cookie_d, token)
-        except Exception as exc:
-            flash(f"Could not verify session with Slack: {exc}", "err")
-            return redirect(url_for("index"))
-
-        actual = info["workspace"]
-        if actual and actual != workspace:
-            flash(
-                f"That token belongs to '{actual}', not '{workspace}'. "
-                f"Open the {workspace} Slack tab and copy the token from there.",
-                "err",
-            )
-            return redirect(url_for("index"))
-
-        try:
-            current = SessionStore.load(store.path)
-            current.set_workspace(
-                workspace, token, cookie_d=cookie_d, team_id=info["team_id"]
-            )
-        except Exception as exc:
-            flash(f"Save failed: {exc}", "err")
-            return redirect(url_for("index"))
-        with _lock:
-            _status["message"] = f"Saved verified session for {workspace}."
-        flash(f"Saved session for {workspace}.", "ok")
-        return redirect(url_for("index"))
-
     @app.post("/scrape/<workspace>")
     def scrape(workspace: str):
         ws = _find_workspace(workspace)
@@ -349,7 +266,11 @@ def create_app(
 
         current = SessionStore.load(store.path)
         if not current.has_workspace(ws.name):
-            flash(f"Save a session for {ws.name} first (extension or manual paste).", "err")
+            flash(
+                f"No session for {ws.name}. Use the Chrome extension on a Slack tab, "
+                "then reload this page.",
+                "err",
+            )
             return redirect(url_for("index"))
 
         with _lock:
