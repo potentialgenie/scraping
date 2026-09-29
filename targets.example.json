@@ -1,0 +1,6 @@
+{
+  "workspaces": [
+    { "name": "hm-developers" },
+    { "name": "sfbrigade" }
+  ]
+}

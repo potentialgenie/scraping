@@ -1,0 +1,78 @@
+# Environment / secrets
+.env
+.env.local
+*.pem
+sessions.json
+targets.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+env/
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Output
+output/
+*.csv
+*.json
+!package.json
+!targets.example.json
+!sessions.example.json
+
+# Browser / Chrome junk (never commit)
+.browser-profile/
+.chrome-scraper-profile/
+.chrome-debug-profile/
+Default/
+ActorSafetyLists/
+AmountExtractionHeuristicRegexes/
+CaptchaProviders/
+CertificateRevocation/
+Crowd Deny/
+Dictionaries/
+FileTypePolicies/
+FirstPartySetsPreloaded/
+GPUPersistentCache/
+MEIPreload/
+NativeMessagingHosts/
+OnDeviceHeadSuggestModel/
+optimization_guide_model_store/
+OptimizationHints/
+OriginTrials/
+PKIMetadata/
+PrivacySandboxAttestationsPreloaded/
+Safe Browsing/
+SafetyTips/
+segmentation_platform/
+SSLErrorAssistant/
+Subresource Filter/
+TrustTokenKeyCommitments/
+WasmTtsEngine/
+WidevineCdm/
+ZxcvbnData/
+component_crx_cache/
+extensions_crx_cache/
+hyphen-data/
+"Local State"
+"Last Version"
+Variations*
+first_party_sets.db*
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db

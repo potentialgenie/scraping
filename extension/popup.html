@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <style>
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      width: 340px; margin: 0; padding: 14px;
+      background: #0f1419; color: #e7ecf3;
+    }
+    h1 { font-size: 15px; margin: 0 0 8px; }
+    p { font-size: 12px; color: #8b9bb4; margin: 0 0 10px; line-height: 1.4; }
+    button {
+      width: 100%; border: 0; border-radius: 8px; padding: 10px;
+      font-weight: 600; font-size: 14px; cursor: pointer;
+      background: #3dd68c; color: #062816;
+    }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    #log { margin-top: 12px; font-size: 12px; }
+    .row { padding: 4px 0; border-bottom: 1px solid #2a3648; }
+    .ok { color: #3dd68c; }
+    .err { color: #f07178; }
+    .muted { color: #8b9bb4; }
+    code { color: #9ec1ff; }
+  </style>
+</head>
+<body>
+  <h1>Capture Slack session</h1>
+  <p>
+    Open any Slack tab where you are signed in, then click below. This grabs the
+    <code>d</code> cookie and the <code>xoxc</code> token for
+    <strong>every workspace</strong> you're logged into and sends them to
+    <code>127.0.0.1:8765</code>.
+  </p>
+  <button id="go">Capture &amp; save all workspaces</button>
+  <div id="log"></div>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "slack-email-scraper"
+version = "3.0.0"
+description = "Scrape emails from Slack Directories (People profiles) via member session"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+  "python-dotenv>=1.0.1",
+  "click>=8.1.7",
+  "flask>=3.0.0",
+  "requests>=2.32.0",
+]
+
+[project.scripts]
+slack-email-scraper = "slack_email_scraper.main:cli"
+
+[tool.setuptools.packages.find]
+where = ["src"]
